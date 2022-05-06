@@ -14,6 +14,10 @@ public class GetWalletAddress : MonoBehaviour
     public GameObject ButtonText;
     public GameObject ProjectAddressTextField;
     public GameObject StakeTextField;
+    public GameObject ProjectSelector;
+    public GameObject StakeSelector;
+    public string[] projectAddressList;
+
     // use WalletAddress function from web3.jslib
     [DllImport("__Internal")] private static extern string WalletAddress();
     [DllImport("__Internal")] private static extern string getStakedCountAndAmount(byte[] array);
@@ -51,8 +55,13 @@ public class GetWalletAddress : MonoBehaviour
 
     public void StakePushed()
     {
-        byte[] projectAddress = System.Text.Encoding.UTF8.GetBytes(ProjectAddressTextField.GetComponent<InputField>().text);
-        byte[] stakeCount = System.Text.Encoding.UTF8.GetBytes(StakeTextField.GetComponent<InputField>().text);
+        string target = projectAddressList[ProjectSelector.GetComponent<Dropdown>().value];
+        // byte[] projectAddress = System.Text.Encoding.UTF8.GetBytes(ProjectAddressTextField.GetComponent<InputField>().text);
+        int stakeNum = StakeSelector.GetComponent<Dropdown>().value;
+        stakeNum += 1;
+        string stakeNumber = StakeSelector.GetComponent<Dropdown>().value.ToString();
+        byte[] projectAddress = System.Text.Encoding.UTF8.GetBytes(target);
+        byte[] stakeCount = System.Text.Encoding.UTF8.GetBytes(stakeNum.ToString());
 
         stake(projectAddress, stakeCount);
     }
