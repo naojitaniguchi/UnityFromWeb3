@@ -20,6 +20,7 @@ public class GetWalletAddress : MonoBehaviour
     public string[] projectAddressList;
     public float[] stakedByProject;
     public float[] apyByProject;
+    public float stakeUnit = 0.0001F;
 
     // use WalletAddress function from web3.jslib
     [DllImport("__Internal")] private static extern string WalletAddress();
@@ -58,13 +59,14 @@ public class GetWalletAddress : MonoBehaviour
 
     public void StakePushed()
     {
-        string target = projectAddressList[ProjectSelector.GetComponent<Dropdown>().value];
-        // byte[] projectAddress = System.Text.Encoding.UTF8.GetBytes(ProjectAddressTextField.GetComponent<InputField>().text);
-        int stakeNum = StakeSelector.GetComponent<Dropdown>().value;
+        Debug.Log(ProjectSelector.GetComponent<TMPro.TMP_Dropdown>().value);
+        string target = projectAddressList[ProjectSelector.GetComponent<TMPro.TMP_Dropdown>().value];
+        int stakeNum = StakeSelector.GetComponent<TMPro.TMP_Dropdown>().value;
         stakeNum += 1;
-        string stakeNumber = StakeSelector.GetComponent<Dropdown>().value.ToString();
+        float stakeFloat = (float)stakeNum;
+        stakeFloat *= stakeUnit;
         byte[] projectAddress = System.Text.Encoding.UTF8.GetBytes(target);
-        byte[] stakeCount = System.Text.Encoding.UTF8.GetBytes(stakeNum.ToString());
+        byte[] stakeCount = System.Text.Encoding.UTF8.GetBytes(stakeFloat.ToString());
 
         stake(projectAddress, stakeCount);
     }
