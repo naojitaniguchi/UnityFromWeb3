@@ -2,9 +2,10 @@
 
 using System.Collections;
 //using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
 // use web3.jslib
 using System.Runtime.InteropServices;
 
@@ -17,6 +18,8 @@ public class GetWalletAddress : MonoBehaviour
     public GameObject ProjectSelector;
     public GameObject StakeSelector;
     public string[] projectAddressList;
+    public float[] stakedByProject;
+    public float[] apyByProject;
 
     // use WalletAddress function from web3.jslib
     [DllImport("__Internal")] private static extern string WalletAddress();
@@ -66,4 +69,56 @@ public class GetWalletAddress : MonoBehaviour
         stake(projectAddress, stakeCount);
     }
 
+    public void GetProjectStatus()
+    {
+        // e.g.curl "https://us-central1-metaverstake.cloudfunctions.net/projects?address=0x854fb5E2E490f22c7e0b8eA0aD4cc8758EA34Bc9&address=0x92561F28Ec438Ee9831D00D1D59fbDC981b762b2"
+        // -> [{ "totalStaked":0.0011,"apy":120},{ "totalStaked":0.1,"apy":120}]
+
+
+        StartCoroutine(CallProjectMethod());
+    }
+
+    private IEnumerator CallProjectMethod()
+    {
+
+        string requestString = "https://us-central1-metaverstake.cloudfunctions.net/projects?";
+        for ( int i = 0; i < projectAddressList.Length; i ++)
+        {
+            requestString += "address=";
+            requestString += projectAddressList[i];
+            if ( i < projectAddressList.Length - 1)
+            {
+                requestString += "&";
+            }
+        }
+
+        // Debug.Log(requestString);
+
+        //1.UnityWebRequestを生成
+        UnityWebRequest request = UnityWebRequest.Get(requestString);
+
+        //2.SendWebRequestを実行し、送受信開始
+        yield return request.SendWebRequest();
+
+        //3.isNetworkErrorとisHttpErrorでエラー判定
+        if ( request.result == UnityWebRequest.Result.ProtocolError )
+        {
+            //4.エラー確認
+            Debug.Log(request.error);
+        }
+        else
+        {
+            //4.結果確認
+            Debug.Log(request.downloadHandler.text);
+            ProjectStatusJson[] test = JsonConvert.DeserializeObject<ProjectStatusJson[]>(request.downloadHandler.text);
+
+            Debug.Log(test.Length);
+            for ( int i = 0; i < test.Length; i ++)
+            {
+                Debug.Log(test[i].totalStaked);
+                Debug.Log(test[i].apy);
+            }
+        }
+
+    }
 }
